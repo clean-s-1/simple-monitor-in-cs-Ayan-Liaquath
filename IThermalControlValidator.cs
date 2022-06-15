@@ -1,10 +1,7 @@
-namespace BatteryManagementSystem
+public interface IThermalControlValidator
 {
-    public interface IThermalControlValidator
-    {
-        bool CheckIfBatteryTemperatureIsInGivenRange(
-            float minimumTemperature,
-            float maximumTemperature,
-            float currentTemperature);
-    }
+    bool CheckIfBatteryTemperatureIsInGivenRange(
+        float minimumTemperature,
+        float maximumTemperature,
+        float currentTemperature);
 }
