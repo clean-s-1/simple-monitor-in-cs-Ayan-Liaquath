@@ -1,18 +1,15 @@
-namespace BatteryManagementSystem
+using System;
+
+public class ChargeRateValidator : IChargeRateValidator
 {
-    using System;
-
-    public class ChargeRateValidator : IChargeRateValidator
+    public bool CheckIfChargeRateIsValid(float maximumChargeRate, float currentChargeRate)
     {
-        public bool CheckIfChargeRateIsValid(float maximumChargeRate, float currentChargeRate)
+        if (currentChargeRate > maximumChargeRate)
         {
-            if (currentChargeRate > maximumChargeRate)
-            {
-                Console.WriteLine("Charge Rate is out of range!");
-                return false;
-            }
-
-            return true;
+            Console.WriteLine("Charge Rate is out of range!");
+            return false;
         }
+
+        return true;
     }
 }
