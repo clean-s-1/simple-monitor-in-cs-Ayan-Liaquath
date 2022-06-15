@@ -1,54 +1,56 @@
-using System;
-
-public class Checker
+namespace BatteryManagementSystem
 {
-    private static bool BatteryIsOk(float temperature, float soc, float chargeRate,
-                                    IThermalControlValidator thermalControlValidator, IStateOfChargeValidator stateOfChargeValidator, IChargeRateValidator chargeRateValidator)
+    using System;
+
+    public class Checker
     {
-        if (!thermalControlValidator.CheckIfBatteryTemperatureIsInGivenRange(0, 45, temperature))
+        private static bool BatteryIsOk(float temperature, float soc, float chargeRate,
+                                        IThermalControlValidator thermalControlValidator, IStateOfChargeValidator stateOfChargeValidator, IChargeRateValidator chargeRateValidator)
         {
-            return false;
+            if (!thermalControlValidator.CheckIfBatteryTemperatureIsInGivenRange(0, 45, temperature))
+            {
+                return false;
+            }
+
+            if (!stateOfChargeValidator.CheckIfStateOfChargeIsInGivenRange(20, 80, soc))
+            {
+                return false;
+            }
+
+            return chargeRateValidator.CheckIfChargeRateIsValid(0.8f, chargeRate);
         }
 
-        if (!stateOfChargeValidator.CheckIfStateOfChargeIsInGivenRange(20, 80, soc))
+        private static void ExpectTrue(bool expression)
         {
-            return false;
+            if (!expression)
+            {
+                Console.WriteLine("Expected true, but got false");
+            }
         }
 
-        return chargeRateValidator.CheckIfChargeRateIsValid(0.8f, chargeRate);
-    }
-
-    private static void ExpectTrue(bool expression)
-    {
-        if (!expression)
+        private static void ExpectFalse(bool expression)
         {
-            Console.WriteLine("Expected true, but got false");
+            if (expression)
+            {
+                Console.WriteLine("Expected false, but got true");
+            }
         }
-    }
 
-    private static void ExpectFalse(bool expression)
-    {
-        if (expression)
+        static int Main()
         {
-            Console.WriteLine("Expected false, but got true");
+            var thermalControlValidator = new ThermalControlValidator();
+            var stateOfChargeValidator = new StateOfChargeValidator();
+            var chargeRateValidator = new ChargeRateValidator();
+
+            ExpectTrue(BatteryIsOk(25, 70, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            ExpectTrue(BatteryIsOk(44, 79, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            ExpectTrue(BatteryIsOk(0, 20, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            ExpectFalse(BatteryIsOk(50, 85, 0.0f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            ExpectFalse(BatteryIsOk(40, 85, 0.0f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            ExpectFalse(BatteryIsOk(40, 79, 0.9f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            ExpectFalse(BatteryIsOk(-1, 79, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            ExpectFalse(BatteryIsOk(20, 15, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            return 0;
         }
-    }
-
-    static int Main()
-    {
-        var thermalControlValidator = new ThermalControlValidator();
-        var stateOfChargeValidator = new StateOfChargeValidator();
-        var chargeRateValidator = new ChargeRateValidator();
-
-        ExpectTrue(BatteryIsOk(25, 70, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        ExpectTrue(BatteryIsOk(44, 79, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        ExpectTrue(BatteryIsOk(0, 20, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        ExpectFalse(BatteryIsOk(50, 85, 0.0f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        ExpectFalse(BatteryIsOk(40, 85, 0.0f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        ExpectFalse(BatteryIsOk(40, 79, 0.9f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        ExpectFalse(BatteryIsOk(-1, 79, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        ExpectFalse(BatteryIsOk(20, 15, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-        Console.ReadKey();
-        return 0;
     }
 }
