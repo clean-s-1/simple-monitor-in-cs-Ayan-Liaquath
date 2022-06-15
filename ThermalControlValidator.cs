@@ -1,21 +1,18 @@
-namespace BatteryManagementSystem
+using System;
+
+public class ThermalControlValidator : IThermalControlValidator
 {
-    using System;
-
-    public class ThermalControlValidator : IThermalControlValidator
+    public bool CheckIfBatteryTemperatureIsInGivenRange(
+        float minimumTemperature,
+        float maximumTemperature,
+        float currentTemperature)
     {
-        public bool CheckIfBatteryTemperatureIsInGivenRange(
-            float minimumTemperature,
-            float maximumTemperature,
-            float currentTemperature)
+        if (currentTemperature < minimumTemperature || currentTemperature > maximumTemperature)
         {
-            if (currentTemperature < minimumTemperature || currentTemperature > maximumTemperature)
-            {
-                Console.WriteLine("Temperature is out of range!");
-                return false;
-            }
-
-            return true;
+            Console.WriteLine("Temperature is out of range!");
+            return false;
         }
+
+        return true;
     }
 }
