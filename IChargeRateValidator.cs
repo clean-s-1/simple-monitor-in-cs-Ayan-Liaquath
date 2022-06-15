@@ -1,7 +1,4 @@
-namespace BatteryManagementSystem
+public interface IChargeRateValidator
 {
-    public interface IChargeRateValidator
-    {
-        bool CheckIfChargeRateIsValid(float maximumChargeRate, float currentChargeRate);
-    }
+    bool CheckIfChargeRateIsValid(float maximumChargeRate, float currentChargeRate);
 }
