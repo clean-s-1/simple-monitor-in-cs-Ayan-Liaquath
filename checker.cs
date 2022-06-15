@@ -1,7 +1,5 @@
 using System;
 
-using BatteryManagementSystem;
-
 public class Checker
 {
     private static bool BatteryIsOk(float temperature, float soc, float chargeRate,
@@ -17,12 +15,7 @@ public class Checker
             return false;
         }
 
-        if (!chargeRateValidator.CheckIfChargeRateIsValid(0.8f, chargeRate))
-        {
-            return false;
-        }
-
-        return true;
+        return chargeRateValidator.CheckIfChargeRateIsValid(0.8f, chargeRate);
     }
 
     private static void ExpectTrue(bool expression)
@@ -55,6 +48,7 @@ public class Checker
         ExpectFalse(BatteryIsOk(40, 79, 0.9f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
         ExpectFalse(BatteryIsOk(-1, 79, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
         ExpectFalse(BatteryIsOk(20, 15, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+        Console.ReadKey();
         return 0;
     }
 }
