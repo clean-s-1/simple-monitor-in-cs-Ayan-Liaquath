@@ -1,10 +1,7 @@
-namespace BatteryManagementSystem
+public interface IStateOfChargeValidator
 {
-    public interface IStateOfChargeValidator
-    {
-        bool CheckIfStateOfChargeIsInGivenRange(
-            float minimumSoc,
-            float maximumSoc,
-            float currentSoc);
-    }
+    bool CheckIfStateOfChargeIsInGivenRange(
+        float minimumSoc,
+        float maximumSoc,
+        float currentSoc);
 }
