@@ -1,25 +1,10 @@
 namespace BatteryManagementSystem
 {
     using System;
+    using System.Collections.Generic;
 
     public class Checker
     {
-        private static bool BatteryIsOk(float temperature, float soc, float chargeRate,
-                                        IThermalControlValidator thermalControlValidator, IStateOfChargeValidator stateOfChargeValidator, IChargeRateValidator chargeRateValidator)
-        {
-            if (!thermalControlValidator.CheckIfBatteryTemperatureIsInGivenRange(0, 45, temperature))
-            {
-                return false;
-            }
-
-            if (!stateOfChargeValidator.CheckIfStateOfChargeIsInGivenRange(20, 80, soc))
-            {
-                return false;
-            }
-
-            return chargeRateValidator.CheckIfChargeRateIsValid(0.8f, chargeRate);
-        }
-
         private static void ExpectTrue(bool expression)
         {
             if (!expression)
@@ -38,18 +23,62 @@ namespace BatteryManagementSystem
 
         static int Main()
         {
-            var thermalControlValidator = new ThermalControlValidator();
-            var stateOfChargeValidator = new StateOfChargeValidator();
-            var chargeRateValidator = new ChargeRateValidator();
+            var languagePrinter = new LanguageSpecificPrinter(Language.English);
+            var chargeRateValidator = new ChargeRateValidator(0.8f, languagePrinter);
+            var stateOfChargeValidator = new StateOfChargeValidator(20, 80, languagePrinter);
+            var thermalControlValidator = new ThermalControlValidator(0, 45, languagePrinter);
 
-            ExpectTrue(BatteryIsOk(25, 70, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-            ExpectTrue(BatteryIsOk(44, 79, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-            ExpectTrue(BatteryIsOk(0, 20, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-            ExpectFalse(BatteryIsOk(50, 85, 0.0f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-            ExpectFalse(BatteryIsOk(40, 85, 0.0f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-            ExpectFalse(BatteryIsOk(40, 79, 0.9f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-            ExpectFalse(BatteryIsOk(-1, 79, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
-            ExpectFalse(BatteryIsOk(20, 15, 0.7f, thermalControlValidator, stateOfChargeValidator, chargeRateValidator));
+            var compositeValidator = new CompositeBatteryParameterValidator(
+                new List<IBatteryParameterValidator>
+                    {
+                        chargeRateValidator,
+                        stateOfChargeValidator,
+                        thermalControlValidator
+                    });
+
+            var batteryManagementSystem = new BatteryManagementSystem();
+
+            chargeRateValidator.UpdateCurrentParameterValue(0.7f);
+            stateOfChargeValidator.UpdateCurrentParameterValue(70);
+            thermalControlValidator.UpdateCurrentParameterValue(25);
+
+            ExpectTrue(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+
+            stateOfChargeValidator.UpdateCurrentParameterValue(79);
+            thermalControlValidator.UpdateCurrentParameterValue(44);
+
+            ExpectTrue(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+
+            stateOfChargeValidator.UpdateCurrentParameterValue(20);
+            thermalControlValidator.UpdateCurrentParameterValue(0);
+
+            ExpectTrue(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+            
+            chargeRateValidator.UpdateCurrentParameterValue(0.0f);
+            stateOfChargeValidator.UpdateCurrentParameterValue(85);
+            thermalControlValidator.UpdateCurrentParameterValue(50);
+
+            ExpectFalse(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+
+            thermalControlValidator.UpdateCurrentParameterValue(40);
+
+            ExpectFalse(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+
+            chargeRateValidator.UpdateCurrentParameterValue(0.9f);
+            stateOfChargeValidator.UpdateCurrentParameterValue(79);
+
+            ExpectFalse(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+
+            chargeRateValidator.UpdateCurrentParameterValue(0.7f);
+            thermalControlValidator.UpdateCurrentParameterValue(-1);
+
+            ExpectFalse(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+
+            thermalControlValidator.UpdateCurrentParameterValue(20);
+            stateOfChargeValidator.UpdateCurrentParameterValue(15);
+
+            ExpectFalse(batteryManagementSystem.IsBatteryOk(compositeValidator).IsBatteryOk);
+
             return 0;
         }
     }
