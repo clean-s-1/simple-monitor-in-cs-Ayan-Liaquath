@@ -4,7 +4,6 @@
     <Compile Include="BatteryManagementSystem.cs"/>
     <Compile Include="ChargeRateValidator.cs"/>
     <Compile Include="CompositeBatteryParameterValidator.cs"/>
-    <Compile Include="ChargeRateValidator.cs"/>
     <Compile Include="EnglishLanguagePrinter.cs"/>
     <Compile Include="GermanLanguagePrinter.cs"/>
     <Compile Include="IBatteryManagementSystem.cs"/>
